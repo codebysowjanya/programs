@@ -1,0 +1,64 @@
+import java.io.*;
+import java.util.*;
+
+public class Main {
+    static int[] tree;
+
+    static void build(int[] a, int node, int l, int r) {
+        if (l == r) {
+            tree[node] = a[l];
+            return;
+        }
+
+        int mid = (l + r) / 2;
+        build(a, node * 2, l, mid);
+        build(a, node * 2 + 1, mid + 1, r);
+
+        tree[node] = Math.min(tree[node * 2], tree[node * 2 + 1]);
+    }
+
+    static int query(int node, int l, int r, int ql, int qr) {
+        if (qr < l || r < ql)
+            return Integer.MAX_VALUE;
+
+        if (ql <= l && r <= qr)
+            return tree[node];
+
+        int mid = (l + r) / 2;
+
+        return Math.min(
+            query(node * 2, l, mid, ql, qr),
+            query(node * 2 + 1, mid + 1, r, ql, qr)
+        );
+    }
+
+    public static void main(String[] args) throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int n = Integer.parseInt(st.nextToken());
+        int q = Integer.parseInt(st.nextToken());
+
+        int[] a = new int[n];
+
+        st = new StringTokenizer(br.readLine());
+        for (int i = 0; i < n; i++)
+            a[i] = Integer.parseInt(st.nextToken());
+
+        tree = new int[4 * n];
+        build(a, 1, 0, n - 1);
+
+        StringBuilder out = new StringBuilder();
+
+        while (q-- > 0) {
+            st = new StringTokenizer(br.readLine());
+
+            int l = Integer.parseInt(st.nextToken()) - 1;
+            int r = Integer.parseInt(st.nextToken()) - 1;
+
+            out.append(query(1, 0, n - 1, l, r)).append('\n');
+        }
+
+        System.out.print(out);
+    }
+}
